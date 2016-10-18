@@ -51,15 +51,15 @@ sub complete_known_mac {
 
     # from ifconfig output (TODO: alternatively from "ip link show")
     {
-        $log->tracef("[compmac] Checking ifconfig output") if $COMPLETE_MAC_TRACE;
         require IPC::System::Options;
         for my $prog ("/sbin/ifconfig") {
             next unless -x $prog;
+            $log->tracef("[compmac] Checking %s output", $prog) if $COMPLETE_MAC_TRACE;
             my @lines = IPC::System::Options::readpipe(
                 {lang=>"C"}, "$prog -a");
             next if $?;
             for my $line (@lines) {
-                if ($line =~ /^\s*HWaddr\s+(\S+)/) {
+                if ($line =~ /\bHWaddr\s+(\S+)/) {
                     $log->tracef("[compmac]   Adding %s", $1) if $COMPLETE_MAC_TRACE;
                     $macs{$1}++;
                 }
