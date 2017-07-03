@@ -6,7 +6,7 @@ package Complete::MAC;
 use 5.010001;
 use strict;
 use warnings;
-use Log::Any::IfLOG '$log';
+use Log::ger;
 
 use Complete::Common qw(:all);
 
@@ -54,13 +54,13 @@ sub complete_known_mac {
         require IPC::System::Options;
         for my $prog ("/sbin/ifconfig") {
             next unless -x $prog;
-            $log->tracef("[compmac] Checking %s output", $prog) if $COMPLETE_MAC_TRACE;
+            log_trace("[compmac] Checking %s output", $prog) if $COMPLETE_MAC_TRACE;
             my @lines = IPC::System::Options::readpipe(
                 {lang=>"C"}, "$prog -a");
             next if $?;
             for my $line (@lines) {
                 if ($line =~ /\bHWaddr\s+(\S+)/) {
-                    $log->tracef("[compmac]   Adding %s", $1) if $COMPLETE_MAC_TRACE;
+                    log_trace("[compmac]   Adding %s", $1) if $COMPLETE_MAC_TRACE;
                     $macs{$1}++;
                 }
             }
@@ -70,7 +70,7 @@ sub complete_known_mac {
 
     # from ARP cache (TODO: alternatively from "ip neigh show")
     {
-        $log->tracef("[compmac] Checking arp -an output") if $COMPLETE_MAC_TRACE;
+        log_trace("[compmac] Checking arp -an output") if $COMPLETE_MAC_TRACE;
         require IPC::System::Options;
       PROG:
         for my $prog ("/usr/sbin/arp") {
@@ -80,7 +80,7 @@ sub complete_known_mac {
             next if $?;
             for my $line (@lines) {
                 if ($line =~ / at (\S+) \[ether\]/) {
-                    $log->tracef("[compmac]   Adding %s", $1) if $COMPLETE_MAC_TRACE;
+                    log_trace("[compmac]   Adding %s", $1) if $COMPLETE_MAC_TRACE;
                     $macs{$1}++;
                 }
             }
